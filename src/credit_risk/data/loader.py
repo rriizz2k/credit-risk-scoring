@@ -13,5 +13,5 @@ def load_german_credit(path="data/raw/german_credit.csv"):
     return df
 
 
-df = load_german_credit('data/raw/german_credit.csv')
-print(df.head(10))
+#df = load_german_credit('data/raw/german_credit.csv')
+#print(df.head(10))
