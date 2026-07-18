@@ -1,4 +1,3 @@
-from pygit2 import Passthrough
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
