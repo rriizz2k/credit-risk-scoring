@@ -5,6 +5,8 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 from lightgbm import LGBMClassifier
+from sklearn.metrics import classification_report
+
 
 def build_baseline_pipeline(num_cols, cat_cols):
     preprocessor = ColumnTransformer([
@@ -14,7 +16,7 @@ def build_baseline_pipeline(num_cols, cat_cols):
 
     pipeline = Pipeline([
         ('preprocessor', preprocessor),
-        ('model', LogisticRegression(max_iter=1000)),
+        ('model', LogisticRegression(max_iter=1000, random_state=42, class_weight='balanced')),
     ])
 
     return pipeline
@@ -24,6 +26,10 @@ def evaluate_model(pipeline, X_test, y_test):
     prediction = pipeline.predict_proba(X_test)[:, 1]  # ИЗМЕНЕНО: добавлен срез [:, 1] — берём только вероятность класса 1, а не обе колонки
     return roc_auc_score(y_test, prediction)
     
+def evaluate_model_detailed(pipeline, X_test, y_test):
+    prediction = pipeline.predict(X_test)
+    return classification_report(y_test, prediction, output_dict=True)
+
 
 def build_lightgbm_pipeline(num_cols, cat_cols):
     preprocessor = ColumnTransformer([
@@ -33,7 +39,7 @@ def build_lightgbm_pipeline(num_cols, cat_cols):
 
     pipeline = Pipeline([
         ('preprocessor', preprocessor),
-        ('model', LGBMClassifier(n_estimators=200, random_state=42)),
+        ('model', LGBMClassifier(n_estimators=200, random_state=42, class_weight='balanced')),
     ])
 
     return pipeline
