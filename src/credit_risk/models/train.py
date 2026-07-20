@@ -3,6 +3,7 @@ from credit_risk.models.baseline import build_baseline_pipeline, evaluate_model,
 from credit_risk.features.prepare import split_features_target, add_engineered_features
 from sklearn.model_selection import train_test_split
 import mlflow
+import joblib
 
 if __name__ == "__main__":
     mlflow.set_experiment("credit-risk-baseline")
@@ -17,6 +18,11 @@ if __name__ == "__main__":
     num_cols = X_train.select_dtypes(include='number').columns.tolist()
     cat_cols = X_train.select_dtypes(include='object').columns.tolist()
 
+    cat = X_train[cat_cols].mode().iloc[0].to_dict()
+    num = X_train[num_cols].median().to_dict()
+    defaults = {**cat, **num}
+    joblib.dump(defaults, 'defaults.pkl')
+
     # ----- убраны все print() — это были черновые проверки, в финальной версии не нужны
 
     # ----- убраны обе строки num_cols.remove(...) — используем ВСЕ признаки (оригиналы + engineered),
@@ -27,6 +33,7 @@ if __name__ == "__main__":
     with mlflow.start_run():
         pipeline = build_baseline_pipeline(num_cols, cat_cols)
         pipeline.fit(X_train, Y_train)
+        joblib.dump(pipeline, "model.pkl")
         auc = evaluate_model(pipeline, X_test, Y_test)
         recall = evaluate_model_detailed(pipeline, X_test, Y_test)['1']['recall']  # ----- вынесено в переменную вместо инлайна — чуть чище читается
         mlflow.log_param("model", "LogisticRegression")
